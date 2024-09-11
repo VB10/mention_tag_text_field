@@ -1,5 +1,3 @@
-import 'dart:nativewrappers/_internal/vm/lib/ffi_allocation_patch.dart';
-
 import 'package:flutter/material.dart';
 import 'package:mention_tag_text_field/src/constants.dart';
 import 'package:mention_tag_text_field/src/mention_tag_data.dart';
