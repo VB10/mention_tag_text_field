@@ -1,3 +1,5 @@
+import 'dart:nativewrappers/_internal/vm/lib/ffi_allocation_patch.dart';
+
 import 'package:flutter/material.dart';
 import 'package:mention_tag_text_field/src/constants.dart';
 import 'package:mention_tag_text_field/src/mention_tag_data.dart';
@@ -5,17 +7,17 @@ import 'package:mention_tag_text_field/src/mention_tag_decoration.dart';
 import 'package:mention_tag_text_field/src/string_extensions.dart';
 
 class MentionTagTextEditingController extends TextEditingController {
-  MentionTagTextEditingController() {
-    addListener(_updateCursorPostion);
+  MentionTagTextEditingController({this.buildOtherTextSpan}) {
+    addListener(_updateCursorPosition);
   }
 
   @override
   void dispose() {
-    removeListener(_updateCursorPostion);
+    removeListener(_updateCursorPosition);
     super.dispose();
   }
 
-  void _updateCursorPostion() {
+  void _updateCursorPosition() {
     _cursorPosition = selection.base.offset;
     if (_indexMentionEnd == null) return;
     if (_cursorPosition - _indexMentionEnd! == 1) {
@@ -94,6 +96,9 @@ class MentionTagTextEditingController extends TextEditingController {
 
   String _temp = '';
   String? _mentionInput;
+
+  /// The mention or tag which is being typed in the TextField.
+  InlineSpan Function(String value, TextStyle? style)? buildOtherTextSpan;
 
   /// Mention or Tag label, this label will be visible in the Text Field.
   ///
@@ -223,7 +228,7 @@ class MentionTagTextEditingController extends TextEditingController {
     _updateOnMention(mention);
 
     if (value.length < _temp.length) {
-      _updadeMentions(value);
+      _updateMentions(value);
     }
 
     _temp = value;
@@ -253,7 +258,7 @@ class MentionTagTextEditingController extends TextEditingController {
     }
   }
 
-  void _updadeMentions(String value) {
+  void _updateMentions(String value) {
     try {
       final indexCursor = selection.base.offset;
 
@@ -316,7 +321,8 @@ class MentionTagTextEditingController extends TextEditingController {
                 ),
           );
         }
-        return TextSpan(text: e, style: style);
+        return buildOtherTextSpan?.call(e, style) ??
+            TextSpan(text: e, style: style);
       }).toList(),
     );
   }
